@@ -5,4 +5,4 @@
     name: postgresql
     state: restarted
     arguments: "{{ pg_version }}"
-  sudo: true
+  become: true

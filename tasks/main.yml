@@ -3,7 +3,7 @@
   apt: pkg={{ item }} state=installed update_cache=yes cache_valid_time=3600
   with_items:
     - python-pycurl
-  sudo: true
+  become: true
   tags: postgres_common
 
 - name: Include Debian tasks
@@ -13,7 +13,7 @@
 
 - name: Ensure apt cache is up to date
   apt: update_cache=yes cache_valid_time=3600
-  sudo: true
+  become: true
   tags: postgres_debian
 
 - name: Ensure packages are installed
@@ -24,7 +24,7 @@
     - python-psycopg2
   register: db_setup
   environment: '{{ pg_proxy_env }}'
-  sudo: true
+  become: true
   tags: postgres_packages
 
 - name: Recreate cluster
@@ -35,12 +35,12 @@
 - name: Update pg_hba.conf file
   template: src=pg_hba.conf.j2 dest=/etc/postgresql/{{ pg_version }}/{{ pg_cluster }}/pg_hba.conf owner={{ pg_admin_user }} group={{ pg_admin_user }} mode=0640
   notify: restart postgresql
-  sudo: true
+  become: true
   tags: postgres_config
 
 - name: Update postgres.conf file
   template: src=master.conf.j2 dest=/etc/postgresql/{{ pg_version }}/{{ pg_cluster }}/postgresql.conf owner={{ pg_admin_user }} group={{ pg_admin_user }} mode=0644
-  sudo: true
+  become: true
   notify: restart postgresql
   tags: postgres_config
 
@@ -50,7 +50,7 @@
     owner="{{ pg_admin_user }}"
     group="{{ pg_admin_user }}"
     mode="0600"
-  sudo: true
+  become: true
   when: pg_cfg_srv_ssl_cert_file is defined
   tags: postgres_config
 
@@ -60,7 +60,7 @@
     owner="{{ pg_admin_user }}"
     group="{{ pg_admin_user }}"
     mode="0600"
-  sudo: true
+  become: true
   when: pg_cfg_srv_ssl_key_file is defined
   tags: postgres_config
 
@@ -76,7 +76,7 @@
     enabled: yes
     arguments: "{{ pg_version }}"
     pattern: "/usr/lib/postgresql/{{ pg_version | float }}/bin/postgres -D /var/lib/postgresql/{{ pg_version }}/{{ pg_cluster }}"
-  sudo: true
+  become: true
   tags: postgres_start
 
 - include: postgis.yml
